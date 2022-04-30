@@ -2,7 +2,7 @@
 Shubham Chatterjee and Laura Dietz. 2021. [BERT-ER: Query-specific BERT Entity Representations for
 Entity Ranking](https://www.cs.unh.edu/~sc1242/publications/pdf/sigir2021.pdf). In _Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR ’22)._
 
-This repository contains code associated with this paper and the instructions on how to execute the code. For detailed instructions on how to run the code, [read the documentation](https://github.com/shubham526/SIGIR2021-Entity-Retrieval/wiki/Entity-Retrieval-Using-Fine-Grained-Entity-Aspects). 
+This repository contains code associated with this paper and the instructions on how to execute the code. For detailed instructions on how to run the code, read the documentation *Coming Soon!*. 
 
 Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
 
