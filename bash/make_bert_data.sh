@@ -3,9 +3,7 @@
 trainScript="/home/sc1242/work/PyCharmProjects/entity_ranking_bert/venv/src/make_train_data.py"
 testScript="/home/sc1242/work/PyCharmProjects/entity_ranking_bert/venv/src/make_dev_or_test_data.py"
 queriesFile="/home/sc1242/work/bert_entity_ranking/dbpedia_entity_v2_car/all/data/queries.tsv"
-dataset=$1
-mainDir="/home/sc1242/work/bert_entity_ranking/dbpedia_entity_v2_car/$dataset/features/bert-features/CV"
-
+mainDir=$1
 
 makeTrainData() {
   k=30 # We use 30 entities each for positive and negative
@@ -14,7 +12,7 @@ makeTrainData() {
   posEntDataFile=$2
   negEntDataFile=$3
   save=$4
-  python3 "$trainScript" --task "$task" --pos-ent-data "$posEntDataFile" --neg-ent-data "$negEntDataFile" --k "$k" --queries "$queriesFile" --save-dir "$save"
+  python3 "$trainScript" --type "$task" --pos-ent-data "$posEntDataFile" --neg-ent-data "$negEntDataFile" --k "$k" --queries "$queriesFile" --save-dir "$save"
 }
 
 makeTestData() {
@@ -27,7 +25,7 @@ makeTestData() {
 
 runMakeTrainData() {
 
-  for task in "ranking" "classification"; do
+  for task in "pairwise" "pointwise"; do
     posEntityDataFilePath=$mainDir/"train_test_sets/set-"$1/$2
     negEntityDataFilePath=$mainDir/"train_test_sets/set-"$1/$3
     saveDirPath=$mainDir/$4/"data/set-"$1
@@ -95,25 +93,17 @@ run() {
             doTask $posEntityDataFile $negEntityDataFile $testEntityDataFile $saveDir
     fi
 
-    if [[ "${type}" == "CandidatePsg" ]]; then
-            posEntityDataFile="train.pos_ent.cand_psg.tsv"
-            negEntityDataFile="train.neg_ent.cand_psg.tsv"
-            testEntityDataFile="test.entity.cand_psg.tsv"
-            saveDir="CandidatePsg"
+    if [[ "${type}" == "BM25Psg" ]]; then
+            posEntityDataFile="train.pos_ent.bm25_psg.tsv"
+            negEntityDataFile="train.neg_ent.bm25_psg.tsv"
+            testEntityDataFile="test.entity.bm25_psg.tsv"
+            saveDir="BM25Psg"
             doTask $posEntityDataFile $negEntityDataFile $testEntityDataFile $saveDir
-    fi
-
-    if [[ "${type}" == "WikiPage" ]]; then
-          posEntityDataFile="train.pos_ent.wiki_page.tsv"
-           negEntityDataFile="train.neg_ent.wiki_page.tsv"
-           testEntityDataFile="test.entity.wiki_page.tsv"
-           saveDir="WikiPage"
-           doTask $posEntityDataFile $negEntityDataFile $testEntityDataFile $saveDir
     fi
 }
 
 main() {
-  for type in "SupportPsg" "LeadText" "AspectSupportPsg" "AspectCandidateSet" "CandidatePsg" "WikiPage"; do
+  for type in "SupportPsg" "LeadText" "AspectSupportPsg" "AspectCandidateSet" "BM25Psg"; do
     echo "Type: $type"
     run $type
     echo "+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
