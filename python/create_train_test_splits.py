@@ -76,35 +76,34 @@ def create_folds_for_run(
 
 
 def main():
-    parser = argparse.ArgumentParser("Create train/test sets from a run file.")
-    parser.add_argument("--fold-file", help='Path to file containing the fold queries.', required=True)
-    parser.add_argument("--run", help='Path to run file.', required=True)
-    parser.add_argument("--save-dir", help='Path to directory where data will be saved.', required=True)
-    parser.add_argument("--train-file", help='Train file to save.', required=True)
-    parser.add_argument("--test-file", help='Test file to save.', required=True)
+    parser = argparse.ArgumentParser("Split a run/qrels file into train/test files.")
+    parser.add_argument("--folds", help='File containing the fold queries.', required=True)
+    parser.add_argument("--file", help='Source file to split.', required=True)
+    parser.add_argument("--save", help='Directory where data will be saved.', required=True)
+    parser.add_argument("--train", help='Name of train file.', required=True)
+    parser.add_argument("--test", help='Name of test file.', required=True)
     args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
     print('Loading fold queries..')
-    fold_query_dict: Dict[str, Dict[str, List[str]]] = read_folds(args.fold_file)
+    fold_query_dict: Dict[str, Dict[str, List[str]]] = read_folds(args.folds)
     print('[Done].')
 
-    print('Loading run file...')
-    run_dict: Dict[str, List[str]] = read_run_file(args.run)
+    print('Loading file...')
+    run_dict: Dict[str, List[str]] = read_run_file(args.file)
     print('[Done].')
 
-    print('Creating folds from run file...')
+    print('Creating folds from file...')
     create_folds_for_run(
         fold_queries=fold_query_dict,
         run_dict=run_dict,
-        save_sir=args.save_dir,
-        train_file=args.train_file,
-        test_file=args.test_file
+        save_sir=args.save,
+        train_file=args.train,
+        test_file=args.test
     )
     print('[Done].')
 
 
 if __name__ == '__main__':
     main()
-
 
 
