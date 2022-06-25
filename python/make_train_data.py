@@ -169,7 +169,7 @@ def balance(
 
 def main():
     parser = argparse.ArgumentParser("Create a training file.")
-    parser.add_argument("--task", help='One of (ranking|classification).', required=True)
+    parser.add_argument("--type", help='One of (pairwise|pointwise).', required=True)
     parser.add_argument("--pos-ent-data", help='File containing data of positive examples.', required=True)
     parser.add_argument("--neg-ent-data", help='File containing data of negative examples.', required=True)
     parser.add_argument("--k", help='Number of positive and negative entities to consider while making the data.',
@@ -214,3 +214,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
