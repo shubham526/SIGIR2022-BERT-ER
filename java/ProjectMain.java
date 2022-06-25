@@ -190,32 +190,9 @@ public class ProjectMain {
 
                 break;
             }
-
-            case "WikiPage": {
-                String index = args[2];
-                String entityFile = args[3];
-                String tfIdfFile = args[4];
-                String stopWordsFile = args[5];
-                String outFile = args[6];
-                boolean parallel = args[7].equals("true");
-
-                WikiPage ob = new WikiPage(index, entityFile, tfIdfFile, stopWordsFile, mode, parallel);
-
-                if (mode.equals("train")) {
-                    ob.doTask(ob.entities.keySet(), mode);
-                } else {
-                    ob.doTask(ob.entityRunMap.keySet(), mode);
-                }
-                System.out.print("Writing to file....");
-                ob.writeToFile(outFile, ob.entityDataMap);
-                System.out.println("[Done].");
-
-                break;
-            }
-
            
             default:
-                System.err.println("ERROR! Type can be either (SupportPsg|LeadText|AspectCandidateSet|AspectSupportPsg|BM25Psg|WikiPage).");
+                System.err.println("ERROR! Type can be either (SupportPsg|LeadText|AspectCandidateSet|AspectSupportPsg|BM25Psg).");
                 System.exit(-1);
         }
     }
