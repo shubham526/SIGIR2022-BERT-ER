@@ -71,10 +71,10 @@ echo "Batch Size = $batchSize"
 echo "Model Type: $task"
 
 for i in "${folds[@]}"; do
-  echo "Set: $i"
-  testData=$dataDir/"set-"$i/$testFile
-  savePath=$outDir/"set-"$i/$task
-  checkpointPath=$outDir/"set-"$i/$task/$checkpoint
+  echo "Fold: $i"
+  testData=$dataDir/"fold-"$i/$testFile
+  savePath=$outDir/"fold-"$i/$task
+  checkpointPath=$outDir/"fold-"$i/$task/$checkpoint
   echo "Test data loaded from ==> $testData"
   echo "Checkpoint loaded from ==> $checkpointPath"
   echo "Saving results to ==> $savePath"

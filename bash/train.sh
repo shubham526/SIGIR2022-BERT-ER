@@ -76,9 +76,9 @@ echo "Batch Size = $batchSize"
 echo "Model Type: $task"
 
 for i in "${folds[@]}"; do
-  echo "Set: $i"
-  trainData=$dataDir/"set-"$i/$trainFile
-  savePath=$outDir/"set-"$i/$task
+  echo "Fold: $i"
+  trainData=$dataDir/"fold-"$i/$trainFile
+  savePath=$outDir/"fold-"$i/$task
   echo "Train data loaded from ==> $trainData"
   echo "Saving results to ==> $savePath"
   if [[ "${useCuda}" == "true" ]]; then

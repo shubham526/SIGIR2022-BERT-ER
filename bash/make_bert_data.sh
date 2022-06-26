@@ -26,18 +26,18 @@ makeTestData() {
 runMakeTrainData() {
 
   for task in "pairwise" "pointwise"; do
-    posEntityDataFilePath=$mainDir/"train_test_sets/set-"$1/$2
-    negEntityDataFilePath=$mainDir/"train_test_sets/set-"$1/$3
-    saveDirPath=$mainDir/$4/"data/set-"$1
+    posEntityDataFilePath=$mainDir/"train_test_sets/fold-"$1/$2
+    negEntityDataFilePath=$mainDir/"train_test_sets/fold-"$1/$3
+    saveDirPath=$mainDir/$4/"data/fold-"$1
     makeTrainData $task "$posEntityDataFilePath" "$negEntityDataFilePath" "$saveDirPath"
   done
 }
 
 runMakeTestData() {
 
-  entityDataFilePath=$mainDir/"train_test_sets/set-"$1/$2
-  qrelFilePath=$mainDir/"train_test_sets/set-"$1/"test.entity.qrels"
-  saveDirPath=$mainDir/$3/"data/set-"$1
+  entityDataFilePath=$mainDir/"train_test_sets/fold-"$1/$2
+  qrelFilePath=$mainDir/"train_test_sets/fold-"$1/"test.entity.qrels"
+  saveDirPath=$mainDir/$3/"data/fold-"$1
   makeTestData "$entityDataFilePath" "$qrelFilePath" "$saveDirPath"
 }
 

@@ -22,7 +22,7 @@ echo "==========================================================================
 BM25Psg() {
 
   setNum=$1
-  echo "Set: $setNum"
+  echo "Fold: $setNum"
   parallel="true"
 
   for mode in "train" "test"; do
@@ -30,22 +30,22 @@ BM25Psg() {
         echo "Creating train files..."
 
         # Positive entity file
-        posEntityFile=$dataDir/"set-"$setNum/$posEntFile
-        posOutFile=$dataDir/"set-"$setNum/"train.pos_ent.bm25_psg.tsv"
+        posEntityFile=$dataDir/"fold-"$setNum/$posEntFile
+        posOutFile=$dataDir/"fold-"$setNum/"train.pos_ent.bm25_psg.tsv"
         echo "Creating positive entity data"
         java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex "$posEntityFile" $queriesFile $entitiesFile "$posOutFile" $parallel
         echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
         # Negative  entity file
-        negEntityFile=$dataDir/"set-"$setNum/$negEntFile
-        negOutFile=$dataDir/"set-"$setNum/"train.neg_ent.bm25_psg.tsv"
+        negEntityFile=$dataDir/"fold-"$setNum/$negEntFile
+        negOutFile=$dataDir/"fold-"$setNum/"train.neg_ent.bm25_psg.tsv"
         echo "Creating negative entity data"
         java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex "$negEntityFile" $queriesFile $entitiesFile "$negOutFile" $parallel
         echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
       else
         echo "Creating test files..."
-        testEntityFile=$dataDir/"set-"$setNum/$testEntityRunFile
-        outFile=$dataDir/"set-"$setNum/"test.entity.bm25_psg.tsv"
+        testEntityFile=$dataDir/"fold-"$setNum/$testEntityRunFile
+        outFile=$dataDir/"fold-"$setNum/"test.entity.bm25_psg.tsv"
         java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex "$testEntityFile" $queriesFile $entitiesFile "$outFile" $parallel
         echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
       fi
@@ -56,30 +56,30 @@ BM25Psg() {
 SupportPsg() {
 
   setNum=$1
-  echo "Set: $setNum"
+  echo "Fold: $setNum"
   parallel="true"
 
   for mode in "train" "test"; do
     if [[ "${mode}" == "train" ]]; then
           echo "Creating train files..."
-          trainParaRunFilePath=$dataDir/"set-"$setNum/$trainParaRunFile
-          trainEntityRunFilePath=$dataDir/"set-"$setNum/$trainEntityRunFile
+          trainParaRunFilePath=$dataDir/"fold-"$setNum/$trainParaRunFile
+          trainEntityRunFilePath=$dataDir/"fold-"$setNum/$trainEntityRunFile
           # Positive entity file
           echo "Creating positive entity data"
-          posEntityFile=$dataDir/"set-"$setNum/$posEntFile
-          posOutFile=$dataDir/"set-"$setNum/"train.pos_ent.support_psg.tsv"
+          posEntityFile=$dataDir/"fold-"$setNum/$posEntFile
+          posOutFile=$dataDir/"fold-"$setNum/"train.pos_ent.support_psg.tsv"
           java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex "$trainParaRunFilePath" "$trainEntityRunFilePath" "$posEntityFile" "$posOutFile" $parallel
 
           # Negative  entity file
           echo "Creating negative entity data"
-          negEntityFile=$dataDir/"set-"$setNum/$negEntFile
-          negOutFile=$dataDir/"set-"$setNum/"train.neg_ent.support_psg.tsv"
+          negEntityFile=$dataDir/"fold-"$setNum/$negEntFile
+          negOutFile=$dataDir/"fold-"$setNum/"train.neg_ent.support_psg.tsv"
           java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex "$trainParaRunFilePath" "$trainEntityRunFilePath" "$negEntityFile" "$negOutFile" $parallel
     else
           echo "Creating test files..."
-          testParaRunFilePath=$dataDir/"set-"$setNum/$testParaRunFile
-          testEntityFile=$dataDir/"set-"$setNum/$testEntityRunFile
-          outFile=$dataDir/"set-"$setNum/"test.entity.support_psg.tsv"
+          testParaRunFilePath=$dataDir/"fold-"$setNum/$testParaRunFile
+          testEntityFile=$dataDir/"fold-"$setNum/$testEntityRunFile
+          outFile=$dataDir/"fold-"$setNum/"test.entity.support_psg.tsv"
           java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex "$testParaRunFilePath" "$testEntityFile" "$outFile" $parallel
     fi
   done
@@ -89,7 +89,7 @@ SupportPsg() {
 LeadText() {
 
   setNum=$1
-  echo "Set: $setNum"
+  echo "Fold: $setNum"
   parallel="true"
 
 
@@ -99,19 +99,19 @@ LeadText() {
 
           # Positive entity file
           echo "Creating positive entity data"
-          posEntityFile=$dataDir/"set-"$setNum/$posEntFile
-          posOutFile=$dataDir/"set-"$setNum/"train.pos_ent.lead_text.tsv"
+          posEntityFile=$dataDir/"fold-"$setNum/$posEntFile
+          posOutFile=$dataDir/"fold-"$setNum/"train.pos_ent.lead_text.tsv"
           java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $entityIndex "$posEntityFile" "$posOutFile" $parallel
 
           # Negative  entity file
           echo "Creating negative entity data"
-          negEntityFile=$dataDir/"set-"$setNum/$negEntFile
-          negOutFile=$dataDir/"set-"$setNum/"train.neg_ent.lead_text.tsv"
+          negEntityFile=$dataDir/"fold-"$setNum/$negEntFile
+          negOutFile=$dataDir/"fold-"$setNum/"train.neg_ent.lead_text.tsv"
           java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $entityIndex "$negEntityFile" "$negOutFile" $parallel
     else
           echo "Creating test files..."
-          testEntityFile=$dataDir/"set-"$setNum/$testEntityRunFile
-          outFile=$dataDir/"set-"$setNum/"test.entity.lead_text.tsv"
+          testEntityFile=$dataDir/"fold-"$setNum/$testEntityRunFile
+          outFile=$dataDir/"fold-"$setNum/"test.entity.lead_text.tsv"
           java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $entityIndex "$testEntityFile" "$outFile" $parallel
     fi
   done
@@ -124,19 +124,19 @@ AspectCandidateSet() {
   parallel="false"
 
   setNum=$1
-  echo "Set: $setNum"
+  echo "Fold: $setNum"
   for mode in "train" "test"; do
     if [[ "${mode}" == "train" ]]; then
             echo "Creating train files..."
-            trainParaRunFilePath=$dataDir/"set-"$setNum/$trainParaRunFile
-            posEntityFile=$dataDir/"set-"$setNum/$posEntFile
-            posOutFile=$dataDir/"set-"$setNum/"train.pos_ent.aspect_cand_set.tsv"
-            negOutFile=$dataDir/"set-"$setNum/"train.neg_ent.aspect_cand_set.tsv"
+            trainParaRunFilePath=$dataDir/"fold-"$setNum/$trainParaRunFile
+            posEntityFile=$dataDir/"fold-"$setNum/$posEntFile
+            posOutFile=$dataDir/"fold-"$setNum/"train.pos_ent.aspect_cand_set.tsv"
+            negOutFile=$dataDir/"fold-"$setNum/"train.neg_ent.aspect_cand_set.tsv"
             java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex $catalogIndex "$trainParaRunFilePath" "$posEntityFile" $queriesFile $stopWordsFile "$posOutFile" "$negOutFile" $takeKDocs $parallel
     else
             echo "Creating test files..."
-            testParaRunFilePath=$dataDir/"set-"$setNum/$testParaRunFile
-            outFile=$dataDir/"set-"$setNum/"test.entity.aspect_cand_set.tsv"
+            testParaRunFilePath=$dataDir/"fold-"$setNum/$testParaRunFile
+            outFile=$dataDir/"fold-"$setNum/"test.entity.aspect_cand_set.tsv"
             java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex $catalogIndex "$testParaRunFilePath" $queriesFile $stopWordsFile "$outFile" $takeKDocs $parallel
     fi
   done
@@ -147,30 +147,30 @@ AspectCandidateSet() {
 AspectSupportPsg() {
 
   setNum=$1
-  echo "Set: $setNum"
+  echo "Fold: $setNum"
   parallel="true"
 
   for mode in "train" "test"; do
     if [[ "${mode}" == "train" ]]; then
             echo "Creating train files..."
-            trainParaRunFilePath=$dataDir/"set-"$setNum/$trainParaRunFile
-            trainEntityRunFilePath=$dataDir/"set-"$setNum/$trainEntityRunFile
+            trainParaRunFilePath=$dataDir/"fold-"$setNum/$trainParaRunFile
+            trainEntityRunFilePath=$dataDir/"fold-"$setNum/$trainEntityRunFile
             # Positive entity file
             echo "Creating positive entity data"
-            posEntityFile=$dataDir/"set-"$setNum/$posEntFile
-            posOutFile=$dataDir/"set-"$setNum/"train.pos_ent.aspect_support_psg.tsv"
+            posEntityFile=$dataDir/"fold-"$setNum/$posEntFile
+            posOutFile=$dataDir/"fold-"$setNum/"train.pos_ent.aspect_support_psg.tsv"
             java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex $catalogIndex "$trainParaRunFilePath" "$trainEntityRunFilePath" "$posEntityFile" "$posOutFile" $parallel
 
             # Negative  entity file
             echo "Creating negative entity data"
-            negEntityFile=$dataDir/"set-"$setNum/$negEntFile
-            negOutFile=$dataDir/"set-"$setNum/"train.neg_ent.aspect_support_psg.tsv"
+            negEntityFile=$dataDir/"fold-"$setNum/$negEntFile
+            negOutFile=$dataDir/"fold-"$setNum/"train.neg_ent.aspect_support_psg.tsv"
             java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex $catalogIndex "$trainParaRunFilePath" "$trainEntityRunFilePath" "$negEntityFile" "$negOutFile" $parallel
     else
             echo "Creating test files..."
-            testParaRunFilePath=$dataDir/"set-"$setNum/$testParaRunFile
-            testEntityFile=$dataDir/"set-"$setNum/$testEntityRunFile
-            outFile=$dataDir/"set-"$setNum/"test.entity.aspect_support_psg.tsv"
+            testParaRunFilePath=$dataDir/"fold-"$setNum/$testParaRunFile
+            testEntityFile=$dataDir/"fold-"$setNum/$testEntityRunFile
+            outFile=$dataDir/"fold-"$setNum/"test.entity.aspect_support_psg.tsv"
             java -jar -Djava.util.concurrent.ForkJoinPool.common.parallelism=20 $jarFile "$mode" "$type" $paraIndex $catalogIndex "$testParaRunFilePath" "$testEntityFile" "$outFile" $parallel
     fi
   done
