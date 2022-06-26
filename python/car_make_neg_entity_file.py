@@ -3,9 +3,6 @@ import tqdm
 import os
 import argparse
 from typing import List, Dict, Set, Tuple
-from collections.abc import Iterable
-from itertools import islice
-
 
 def create_file(
         pos_ent_dict: Dict[str, Set[str]],
@@ -64,10 +61,10 @@ def take(n: int, iterable: Set[str]) -> Set[str]:
 
 def main():
     parser = argparse.ArgumentParser("Create a file with negative (non-relevant) entities.")
-    parser.add_argument("--pos-ent", help='File containing positive examples (i.e., ground truth file).', required=True)
-    parser.add_argument("--run", help='Run file.', required=True)
-    parser.add_argument("--top-k", help='Top-K entities to take.', required=True)
-    parser.add_argument("--save", help='File to save.', required=True)
+    parser.add_argument("--qrels", help='Ground truth file.', required=True, type=str)
+    parser.add_argument("--run", help='Run file.', required=True, type=str)
+    parser.add_argument("--k", help='Top-K entities to take.', required=True, type=int)
+    parser.add_argument("--save", help='File to save.', required=True, type=str)
     args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 
     print('Loading run file...')
@@ -75,11 +72,12 @@ def main():
     print('[Done].')
 
     print('Loading ground truth file...')
-    pos_ent_dict: Dict[str, Set[str]] = load_file(args.pos_ent, file_type='qrels')
+    pos_ent_dict: Dict[str, Set[str]] = load_file(args.qrels, file_type='qrels')
     print('[Done].')
 
-    create_file(pos_ent_dict, run_file_dict, int(args.top_k), args.save)
+    create_file(pos_ent_dict, run_file_dict, k, args.save)
 
 
 if __name__ == '__main__':
     main()
+
