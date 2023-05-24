@@ -3,6 +3,7 @@ package help;
 
 import make_entity_data_file.SupportPsg;
 import me.tongfei.progressbar.ProgressBar;
+import org.apache.lucene.document.Document;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,10 +19,10 @@ import java.util.concurrent.ForkJoinPool;
  * @version 9/4/21
  */
 
-public class MakeSupportPsgRun extends SupportPsg {
+public class ECNRun extends SupportPsg {
 
-    private Map<String, Set<String>> entities = new HashMap<>();
-    private final List<String> runStrings;
+    // private Map<String, Set<String>> entities = new HashMap<>();
+    public final List<String> runStrings;
 
     /**
      * Constructor for train data.
@@ -38,14 +39,14 @@ public class MakeSupportPsgRun extends SupportPsg {
 
 
 
-    public MakeSupportPsgRun(String indexDir,
-                             String entityPassageFile,
-                             String entityRunFile,
-                             String entityFile,
-                             String queryIdToNameFile,
-                             String entityIdToNameFile,
-                             String stopWordsFile,
-                             boolean parallel) {
+    public ECNRun(String indexDir,
+                  String entityPassageFile,
+                  String entityRunFile,
+                  String entityFile,
+                  String queryIdToNameFile,
+                  String entityIdToNameFile,
+                  String stopWordsFile,
+                  boolean parallel) {
 
         super(indexDir, entityPassageFile, entityRunFile, queryIdToNameFile, entityIdToNameFile, stopWordsFile, parallel);
 
@@ -66,20 +67,20 @@ public class MakeSupportPsgRun extends SupportPsg {
      * @param parallel Whether to do in parallel.
      */
 
-    public MakeSupportPsgRun(String indexDir,
-                             String entityPassageFile,
-                             String entityRunFile,
-                             String queryIdToNameFile,
-                             String entityIdToNameFile,
-                             String stopWordsFile,
-                             boolean parallel) {
+    public ECNRun(String indexDir,
+                  String entityPassageFile,
+                  String entityRunFile,
+                  String queryIdToNameFile,
+                  String entityIdToNameFile,
+                  String stopWordsFile,
+                  boolean parallel) {
 
         super(indexDir, entityPassageFile, entityRunFile,queryIdToNameFile, entityIdToNameFile, stopWordsFile, parallel);
         this.runStrings = new ArrayList<>();
 
     }
 
-    private void writeRunFile(@NotNull List<String> runStrings, String filePath) {
+    public void writeRunFile(@NotNull List<String> runStrings, String filePath) {
         BufferedWriter out = null;
         try {
             out = new BufferedWriter(new FileWriter(filePath,true));
@@ -112,11 +113,9 @@ public class MakeSupportPsgRun extends SupportPsg {
      * Works in parallel using Java 8 parallelStreams.
      * DEFAULT THREAD POOL SIE = NUMBER OF PROCESSORS
      * USE : System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "N") to set the thread pool size
-     * @param outputFilePath String Path to the output file.
      */
 
-    private  void doTask(String outputFilePath, boolean trainMode) {
-        Set<String> querySet = entityRunMap.keySet();
+    public void doTask(@NotNull Set<String> querySet, String mode) {
         if (parallel) {
             System.out.println("Using Parallel Streams.");
             int parallelism = ForkJoinPool.commonPool().getParallelism();
@@ -130,25 +129,18 @@ public class MakeSupportPsgRun extends SupportPsg {
                         "to set the number of threads used");
             }
             // Do in parallel
-            querySet.parallelStream().forEach(queryId -> findSupportPsg(queryId, trainMode));
+            querySet.parallelStream().forEach(queryId -> findSupportPsg(queryId, mode));
         } else {
             System.out.println("Using Sequential Streams.");
 
             // Do in serial
             ProgressBar pb = new ProgressBar("Progress", querySet.size());
             for (String q : querySet) {
-                findSupportPsg(q, trainMode);
+                findSupportPsg(q, mode);
                 pb.step();
             }
             pb.close();
         }
-
-
-        // Create the run file
-        System.out.print("Writing to run file.....");
-        writeRunFile(runStrings, outputFilePath);
-        System.out.println("[Done].");
-        System.out.println("Run file written at: " + outputFilePath);
     }
 
     /**
@@ -161,7 +153,7 @@ public class MakeSupportPsgRun extends SupportPsg {
      * @param queryId String
      */
 
-    private void findSupportPsg(String queryId, boolean trainMode) {
+    private void findSupportPsg(String queryId, @NotNull String mode) {
 
         Set<String> retEntitySet = entityRunMap.get(queryId).keySet();
 
@@ -169,7 +161,7 @@ public class MakeSupportPsgRun extends SupportPsg {
         // Train --> Candidate entities = Positive/Negative entities for query.
         // Test --> Candidate entities = Entities from a run file (retrieved entities).
 
-        if (trainMode) {
+        if (mode.equals("train")) {
             Set<String> entitySet = entities.get(queryId);
             findSupportPsg(queryId, entitySet, retEntitySet);
         } else {
@@ -209,8 +201,24 @@ public class MakeSupportPsgRun extends SupportPsg {
         }
     }
 
-    private Map<String, Double> scoreDoc(EntityContextDocument d, Map<String, Double> freqDist) {
-        return null;
+    @NotNull
+    private Map<String, Double> scoreDoc(@NotNull EntityContextDocument d, Map<String, Double> freqMap) {
+
+        Map<String, Double> scoreMap = new HashMap<>();
+
+        // Get the list of documents in the pseudo-document corresponding to the entity
+        List<Document> documents = d.getDocumentList();
+
+        // For every document do
+        for (Document doc : documents) {
+
+            // Get the score of the document
+            double score = getParaScore(doc, freqMap);
+
+            // Store
+            scoreMap.put(doc.get("Id"), score);
+        }
+        return scoreMap;
     }
 
     /**
@@ -243,9 +251,9 @@ public class MakeSupportPsgRun extends SupportPsg {
 
     public static void main(@NotNull String[] args) {
 
-        boolean trainMode = args[0].equals("true");
+        String mode = args[0];
 
-        if (trainMode) {
+        if (mode.equals("train")) {
             String indexDir = args[1];
             String entityPassageFile = args[2];
             String entityRunFile = args[3];
@@ -253,13 +261,18 @@ public class MakeSupportPsgRun extends SupportPsg {
             String queryIdToNameFile = args[5];
             String entityIdToNameFile = args[6];
             String stopWordsFile = args[7];
-            String outDir = args[8];
+            String outFile = args[8];
             boolean parallel = args[9].equals("true");
 
-            String outFile = outDir + "/ECN-Train.run";
-            MakeSupportPsgRun ob = new MakeSupportPsgRun(indexDir, entityPassageFile, entityRunFile, entityFile,
+            ECNRun ob = new ECNRun(indexDir, entityPassageFile, entityRunFile, entityFile,
                     queryIdToNameFile, entityIdToNameFile, stopWordsFile, parallel);
-            ob.doTask(outFile, trainMode);
+
+
+            ob.doTask(ob.entities.keySet(), mode);
+            System.out.print("Writing to run file.....");
+            ob.writeRunFile(ob.runStrings, outFile);
+            System.out.println("[Done].");
+            System.out.println("Run file written at: " + outFile);
 
 
         } else {
@@ -269,14 +282,18 @@ public class MakeSupportPsgRun extends SupportPsg {
             String queryIdToNameFile = args[4];
             String entityIdToNameFile = args[5];
             String stopWordsFile = args[6];
-            String outDir = args[7];
+            String outFile = args[7];
             boolean parallel = args[8].equals("true");
 
-            String outFile = outDir + "/ECN-Test.run";
-            MakeSupportPsgRun ob =  new MakeSupportPsgRun(indexDir, entityPassageFile, entityRunFile,
+            ECNRun ob = new ECNRun(indexDir, entityPassageFile, entityRunFile,
                     queryIdToNameFile, entityIdToNameFile, stopWordsFile, parallel);
-            ob.doTask(outFile, trainMode);
+            ob.doTask(ob.entityRunMap.keySet(), mode);
+            System.out.print("Writing to run file.....");
+            ob.writeRunFile(ob.runStrings, outFile);
+            System.out.println("[Done].");
+            System.out.println("Run file written at: " + outFile);
 
         }
     }
 }
+

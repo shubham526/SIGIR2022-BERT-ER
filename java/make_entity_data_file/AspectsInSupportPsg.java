@@ -58,43 +58,44 @@ public class AspectsInSupportPsg extends SupportPsg {
 
     }
 
-    protected void getEntityData(String entityId,
-                                   @NotNull Map<String, Double> scoreMap,
-                                   Map<String, String> result) {
+    @NotNull
+    @Override
+    protected Map<String, String> getEntityData(String queryId, @NotNull Set<String> candidateEntitySet) {
+        Map<String, String> result = new HashMap<>();
 
-        Map.Entry<String, Double> topSupportPsgForEntity = new ArrayList<>(scoreMap.entrySet()).get(0);
-        String topSupportPsgId = topSupportPsgForEntity.getKey();
-        double topSupportPsgScore = topSupportPsgForEntity.getValue();
+        for (String entityId : candidateEntitySet) {
+            if (entityRunMap.containsKey(queryId) && entityRunMap.get(queryId).containsKey(entityId)) {
+                try {
+                    Document doc = getTopDocForEntity(queryId, entityId);
+                    double entityScore = entityRunMap.get(queryId).get(entityId);
+                    if (doc != null) {
+                        String paraId = doc.get("Id");
+                        String paraEntities = doc.get("Entities");
 
-        try {
+                        // Get the aspect of the entity from the support passage
+                        String entityAspectId = getEntityAspectId(entityId, paraEntities);
 
-            // Get the entities in the support passage
-            Document doc = LuceneHelper.searchIndex("Id", topSupportPsgId, indexSearcher);
-            if (doc != null) {
-                String paraEntities = doc.get("Entities");
+                        if (entityAspectId != null && !entityAspectId.isEmpty()) {
 
-                // Get the aspect of the entity from the support passage
-                String entityAspectId = getEntityAspectId(entityId, paraEntities);
-
-                if (entityAspectId != null && !entityAspectId.isEmpty()) {
-
-                    // entityAspectId may be null if the entity is not found in the passage.
-                    // entityAspectId may be empty if the entity is found in the passage but it has no associated aspect.
-                    // This can happen because the entity aspect linker is not perfect and may not be able to aspect link all entities in the passage.
-                    String aspectText = idToText(entityAspectId, "Text", catalogSearcher);
-                    String data = aspectText.isEmpty()
-                            ? ""
-                            : toJSONString(topSupportPsgId, entityAspectId, aspectText, topSupportPsgScore);
-                    if (! data.isEmpty()) {
-                        result.put(entityId, data);
+                            // entityAspectId may be null if the entity is not found in the passage.
+                            // entityAspectId may be empty if the entity is found in the passage but it has no associated aspect.
+                            // This can happen because the entity aspect linker is not perfect and may not be able to aspect link all entities in the passage.
+                            String aspectText = idToText(entityAspectId, "Text", catalogSearcher);
+                            String data = aspectText.isEmpty()
+                                    ? ""
+                                    : toJSONString(paraId, entityAspectId, aspectText, entityScore);
+                            if (!data.isEmpty()) {
+                                result.put(entityId, data);
+                            }
+                        }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (ParseException | IOException e) {
-            e.printStackTrace();
         }
 
-
+        return result;
     }
 
     @Nullable
@@ -166,3 +167,4 @@ public class AspectsInSupportPsg extends SupportPsg {
     }
 
 }
+

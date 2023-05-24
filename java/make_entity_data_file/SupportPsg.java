@@ -19,7 +19,7 @@ import java.util.*;
  * We use the top support passage for an entity as the entity's description.
  * This class implements method Entity Context Neighbour (ECN) from Chatterjee et al., 2019.
  * @author Shubham Chatterjee
- * @version 2/26/2022
+ * @version 4/9/2023
  */
 
 public class SupportPsg extends CandidatePsg {
@@ -157,7 +157,7 @@ public class SupportPsg extends CandidatePsg {
         Map<String, String> result = new HashMap<>();
 
         for (String entityId : candidateEntitySet) {
-            if (entityParaMap.containsKey(entityId)) {
+            if (entityRunMap.containsKey(queryId) && entityRunMap.get(queryId).containsKey(entityId)) {
                 try {
                     Document doc = getTopDocForEntity(queryId, entityId);
                     double entityScore = entityRunMap.get(queryId).get(entityId);
@@ -198,14 +198,13 @@ public class SupportPsg extends CandidatePsg {
     }
 
     @NotNull
-    protected List<RankingHelper.ScoredDocument> rankParasForQuery(String queryId, String entityId, List<String> paraList) {
+    protected List<RankingHelper.ScoredDocument> rankParasForQuery(String queryStr, String entityStr, List<String> paraList) {
 
         // Get the Lucene documents
         List<Document> luceneDocList = LuceneHelper.toLuceneDocList(paraList, indexSearcher);
 
         // Convert to BooleanQuery
-        BooleanQuery booleanQuery = RankingHelper.toBooleanQueryWithPRF(queryIdToNameMap.get(queryId),
-                entityIdToNameMap.get(entityId), luceneDocList, stopWords);
+        BooleanQuery booleanQuery = RankingHelper.toBooleanQueryWithPRF(queryStr, entityStr, luceneDocList, stopWords);
 
         // Rank the Lucene Documents using the BooleanQuery
 
@@ -357,8 +356,6 @@ public class SupportPsg extends CandidatePsg {
         return paraScore;
     }
 
-
-
     public static void main(@NotNull String[] args) {
         String mode = args[0];
 
@@ -404,3 +401,4 @@ public class SupportPsg extends CandidatePsg {
 
     }
 }
+

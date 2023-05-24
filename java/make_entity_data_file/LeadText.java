@@ -56,6 +56,7 @@ public class LeadText extends MakeEntityData {
     }
 
     protected void getEntityData(String entityId, double entityScore, Map<String, String> res) {
+
         String leadText = idToText(entityId, "LeadText", indexSearcher);
         String data = leadText.isEmpty()
                 ? ""
@@ -84,3 +85,4 @@ public class LeadText extends MakeEntityData {
         System.out.println("[Done].");
     }
 }
+

@@ -12,7 +12,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.util.*;
-
+import java.util.stream.Collectors;
 
 
 /**
@@ -191,7 +191,7 @@ public class AspectsInCandidateSet extends MakeEntityData {
 
 
                 // Get the negative query entities
-                Set<String> negQueryEntitySet = new HashSet<>(allQueryEntities.keySet());
+                Set<String> negQueryEntitySet = new LinkedHashSet<>(allQueryEntities.keySet());
                 try {
                     negQueryEntitySet.removeAll(relevantEntitySet);
                 } catch (NullPointerException e) {
@@ -200,13 +200,20 @@ public class AspectsInCandidateSet extends MakeEntityData {
                 }
 
                 // Get the positive query entities
-                Set<String> posQueryEntitySet = new HashSet<>(allQueryEntities.keySet());
+                Set<String> posQueryEntitySet = new LinkedHashSet<>(allQueryEntities.keySet());
                 try {
                     posQueryEntitySet.retainAll(relevantEntitySet);
                 } catch (NullPointerException e) {
                     System.out.println("NullPointerException");
                     e.printStackTrace();
                 }
+
+                // Balance the number of positive and negative entities
+
+                negQueryEntitySet = negQueryEntitySet
+                        .stream()
+                        .limit(posQueryEntitySet.size())
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
 
                 // Get the positive entities text
                 Map<String, String> posEntityToText = getEntityText(queryStr, posQueryEntitySet, allQueryEntities, entityRankingForQuery);
@@ -474,8 +481,11 @@ public class AspectsInCandidateSet extends MakeEntityData {
         Map<String, ParaAspect> documentParaAspectMap = toDocParaAspectMap(paraAspectSet);
         List<Document> aspectDocs = toLuceneDoc(paraAspectSet);
         List<RankingHelper.ScoredDocument> rankedDocList = RankingHelper.rankDocuments(booleanQuery, aspectDocs, 100);
-        String topDocId = rankedDocList.get(0).getDocId();
-        return documentParaAspectMap.get(topDocId);
+        if (!rankedDocList.isEmpty()) {
+            return documentParaAspectMap.get(rankedDocList.get(0).getDocId());
+        } else {
+            return null;
+        }
     }
 
     @NotNull
@@ -570,3 +580,4 @@ public class AspectsInCandidateSet extends MakeEntityData {
 
 
 }
+

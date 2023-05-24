@@ -114,3 +114,4 @@ public class BM25Psg extends CandidatePsg {
     }
 
 }
+

@@ -54,29 +54,35 @@ public abstract class CandidatePsg extends MakeEntityData {
     @Nullable
     protected Document getTopDocForEntity(String queryId, String entityId) throws IOException {
 
-        if (queryIdToNameMap.containsKey(queryId) && entityIdToNameMap.containsKey(entityId) && entityParaMap.containsKey(entityId)) {
+        if (queryIdToNameMap.containsKey(queryId)) {
+            if (entityIdToNameMap.containsKey(entityId)) {
+                if (entityParaMap.containsKey(entityId)) {
 
-            String queryStr = queryIdToNameMap.get(queryId);
-            String entityStr = entityIdToNameMap.get(entityId);
-            try {
-                List<String> paraList = JSONArrayToList(new JSONObject(entityParaMap.get(entityId))
-                        .getJSONArray("paragraphs"));
-                // Rank these paragraphs for the query
-                List<RankingHelper.ScoredDocument> rankedParaList = rankParasForQuery(queryStr, entityStr, paraList);
+                    String queryStr = queryIdToNameMap.get(queryId);
+                    String entityStr = entityIdToNameMap.get(entityId);
+                    try {
+                        List<String> paraList = JSONArrayToList(new JSONObject(entityParaMap.get(entityId))
+                                .getJSONArray("paragraphs"));
+                        // Rank these paragraphs for the query
+                        List<RankingHelper.ScoredDocument> rankedParaList = rankParasForQuery(queryStr, entityStr, paraList);
 
-                if (!rankedParaList.isEmpty()) {
-                    return getEntityDescription(queryId, entityId, rankedParaList);
-                }else {
-                    System.err.println("No ranked paragraphs found for entity: " + entityId);
+                        if (!rankedParaList.isEmpty()) {
+                            return getEntityDescription(queryId, entityId, rankedParaList);
+                        } else {
+                            System.err.println("No ranked paragraphs found for entity: " + entityId);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("No paragraphs found for entity: " + entityId);
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } else {
+                System.out.println("Entity not found: " + entityId);
             }
+        } else {
+            System.out.println("Query not found: " + queryId);
         }
-        else {
-            System.out.println("No paragraphs found for entity: " + entityId);
-        }
-
         return null;
     }
 
@@ -121,3 +127,4 @@ public abstract class CandidatePsg extends MakeEntityData {
     }
 
 }
+

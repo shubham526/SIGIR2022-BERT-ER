@@ -1,4 +1,5 @@
 
+import help.ECNRun;
 import make_entity_data_file.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,26 +20,27 @@ public class ProjectMain {
             case "SupportPsg":
                 if (mode.equals("train")) {
                     String paraIndex = args[2];
-                    String paraRunFile = args[3];
+                    String entityPassageFile = args[3];
                     String entityRunFile = args[4];
-                    String entityFile = args[5];
-                    String queryIdToNameFile = args[6];
-                    String entityIdToNameFile = args[7];
-                    String stopWordsFile = args[8];
-                    String outFile = args[9];
+                    String posOrNegEntityFile = args[5];
+                    String outFile = args[6];
+                    String queryIdToNameFile = args[7];
+                    String entityIdToNameFile = args[8];
+                    String stopWordsFile = args[9];
                     boolean parallel = args[10].equals("true");
 
 
-                    SupportPsg ob = new SupportPsg(paraIndex, paraRunFile, entityRunFile, entityFile,
+                    SupportPsg ob = new SupportPsg(paraIndex, entityPassageFile, entityRunFile, posOrNegEntityFile,
                             queryIdToNameFile, entityIdToNameFile, stopWordsFile, parallel);
                     ob.doTask(ob.entities.keySet(), mode);
                     System.out.print("Writing to file....");
                     ob.writeToFile(outFile, ob.entityDataMap);
                     System.out.println("[Done].");
 
+
                 } else if (mode.equals("dev") || mode.equals("test")) {
                     String paraIndex = args[2];
-                    String paraRunFile = args[3];
+                    String entityPassageFile = args[3];
                     String entityRunFile = args[4];
                     String outFile = args[5];
                     String queryIdToNameFile = args[6];
@@ -47,18 +49,15 @@ public class ProjectMain {
                     boolean parallel = args[9].equals("true");
 
 
-                    SupportPsg ob = new SupportPsg(paraIndex, paraRunFile, entityRunFile,
+                    SupportPsg ob = new SupportPsg(paraIndex, entityPassageFile, entityRunFile,
                             queryIdToNameFile, entityIdToNameFile, stopWordsFile, parallel);
                     ob.doTask(ob.entityRunMap.keySet(), mode);
                     System.out.print("Writing to file....");
                     ob.writeToFile(outFile, ob.entityDataMap);
                     System.out.println("[Done].");
 
-                } else {
-                    System.err.println("ERROR! Mode can be either (train|dev|test)).");
-                    System.exit(-1);
-
                 }
+
 
                 break;
             case "LeadText": {
@@ -190,10 +189,58 @@ public class ProjectMain {
 
                 break;
             }
-           
+
+
+            case "ECNRun": {
+                if (mode.equals("train")) {
+                    String paraIndex = args[2];
+                    String entityPassageFile = args[3];
+                    String entityRunFile = args[4];
+                    String posOrNegEntityFile = args[5];
+                    String outFile = args[6];
+                    String queryIdToNameFile = args[7];
+                    String entityIdToNameFile = args[8];
+                    String stopWordsFile = args[9];
+                    boolean parallel = args[10].equals("true");
+
+
+                    ECNRun ob = new ECNRun(paraIndex, entityPassageFile, entityRunFile, posOrNegEntityFile,
+                            queryIdToNameFile, entityIdToNameFile, stopWordsFile, parallel);
+                    ob.doTask(ob.entities.keySet(), mode);
+                    System.out.print("Writing to run file.....");
+                    ob.writeRunFile(ob.runStrings, outFile);
+                    System.out.println("[Done].");
+                    System.out.println("Run file written at: " + outFile);
+
+
+                } else if (mode.equals("dev") || mode.equals("test")) {
+                    String paraIndex = args[2];
+                    String entityPassageFile = args[3];
+                    String entityRunFile = args[4];
+                    String outFile = args[5];
+                    String queryIdToNameFile = args[6];
+                    String entityIdToNameFile = args[7];
+                    String stopWordsFile = args[8];
+                    boolean parallel = args[9].equals("true");
+
+
+                    ECNRun ob = new ECNRun(paraIndex, entityPassageFile, entityRunFile,
+                            queryIdToNameFile, entityIdToNameFile, stopWordsFile, parallel);
+                    ob.doTask(ob.entityRunMap.keySet(), mode);
+                    System.out.print("Writing to run file.....");
+                    ob.writeRunFile(ob.runStrings, outFile);
+                    System.out.println("[Done].");
+                    System.out.println("Run file written at: " + outFile);
+
+                }
+
+                break;
+            }
+
             default:
-                System.err.println("ERROR! Type can be either (SupportPsg|LeadText|AspectCandidateSet|AspectSupportPsg|BM25Psg).");
+                System.err.println("ERROR! Type can be either (SupportPsg|LeadText|AspectCandidateSet|AspectSupportPsg|BM25Psg|ECNRun).");
                 System.exit(-1);
         }
     }
 }
+
